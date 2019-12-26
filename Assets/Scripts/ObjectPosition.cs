@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ObjectPosition : MonoBehaviour {
+public class ObjectPosition {
 
     public int X { get; set; }
     public int Z { get; set; }
