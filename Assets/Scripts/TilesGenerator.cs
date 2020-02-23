@@ -19,6 +19,8 @@ public class TilesGenerator : MonoBehaviour
     
     private List<ObjectPosition> objectPositionList = new List<ObjectPosition>();
 
+    private List<ObjectPosition> corridorPositionlist = new List<ObjectPosition>();
+
     private List <Vector3> gridPositions = new List<Vector3>();
 
     // Start is called before the first frame update
@@ -30,9 +32,13 @@ public class TilesGenerator : MonoBehaviour
         var selectEdgeTiles = objectPositionList.Where(o => o.IsEdge).ToList();
         var chosenTile = selectEdgeTiles[Random.Range(0, selectEdgeTiles.Count)];
         var corridorEnd = instantiateCorridor(chosenTile);
+        foreach(var cor in corridorPositionlist){
+            //Debug.Log($"Corridor is {cor.Counter}, X is {cor.X}, Z is {cor.Z}");
+        }
 
         instantiateHall(rows, columns, corridorEnd.X, corridorEnd.Z);
         SpawnWalls(selectEdgeTiles, chosenTile);
+        //SpawnWalls(corridorPositionlist);
         //LayoutObjectAtRandom(wallTiles, 5, 9);
         //Debug.Log($"Counter is {chosenTile.Counter}, X is {chosenTile.X}, Z is {chosenTile.Z}");
         //instantiateCorridor()
@@ -80,14 +86,13 @@ public class TilesGenerator : MonoBehaviour
                 objectPositionList.Add(newPosition);
                 instance.transform.SetParent(boardHolder);
                 counter++;
-
             }
         }
     }
 
     private ObjectPosition instantiateCorridor(ObjectPosition objectPosition) {
         GameObject instanceCorridor = null;
-        var corridorSize = Random.Range(2, 5);
+        var corridorSize = Random.Range(5, 8);
         float xVector = objectPosition.X;
         float zVector = objectPosition.Z;
 
@@ -107,6 +112,28 @@ public class TilesGenerator : MonoBehaviour
                     break;
             }
 
+            // var newPosition = new ObjectPosition
+            //     {
+            //         X = x,
+            //         Z = z,
+            //         Counter = counter,
+            //         ObjectInstance = instance,
+            //         IsEdge = false
+            //     };
+            if(i != 0 && i != corridorSize) {
+                var corridorPosition = new ObjectPosition
+                {
+                    X = (int)xVector,
+                    Z = (int)zVector,
+                    Counter = counter,
+                    ObjectInstance = instanceCorridor,
+                    IsEdge = true
+                };
+
+                corridorPositionlist.Add(corridorPosition);
+            }
+            
+
             instanceCorridor = Instantiate(floorTiles, new Vector3(xVector * fm, 0, zVector * fm), Quaternion.identity) as GameObject;
             instanceCorridor.transform.SetParent(boardHolder);
         }
@@ -119,23 +146,27 @@ public class TilesGenerator : MonoBehaviour
             ObjectInstance = instanceCorridor,
             IsEdge = true
         };
-        Debug.Log($"Corridor: x is {xVector}, z is {zVector}");
+        //Debug.Log($"Corridor: x is {xVector}, z is {zVector}");
         
         counter++;
 
         return corridorEnd;
     }
 
-    private void SpawnWalls(List<ObjectPosition> tiles, ObjectPosition dontSpawntile = null)
+    private void SpawnWalls(List<ObjectPosition> tiles, ObjectPosition dontSpawntile = null, bool isHall = false)
     {
         var zMax = tiles.Select(t => t.Z).Max() + 1;
+        //var zMax = tiles.Select(t => t.Z = t.Z + 1);
         var xMin = tiles.Select(t => t.X).Min();
         var xMax = tiles.Select(t => t.X).Max();
 
         foreach(var tile in tiles)
         {   
+            var dontSpawnTileX = dontSpawntile == null ? false : tile.X == dontSpawntile.X;
+            var dontSpawnTileZ = dontSpawntile == null ? false : tile.Z == dontSpawntile.Z;
             //Debug.Log($"xTile is {tile.X} = {dontSpawntile.X}, zTile is {tile.Z} = {dontSpawntile.Z}");
-            if(tile.EdgeStance == 2 || (tile.X == dontSpawntile.X && tile.Z == dontSpawntile.Z)) {
+            //if(tile.EdgeStance == 2 || tile.EdgeStance == 3|| (tile.X == dontSpawntile.X && tile.Z == dontSpawntile.Z)) {
+            if(tile.EdgeStance == 2 || tile.EdgeStance == 3|| (dontSpawnTileX && dontSpawnTileZ)) {
                 continue;
             }
             var xTile = tile.X;
@@ -148,9 +179,9 @@ public class TilesGenerator : MonoBehaviour
                 case 1:
                     xTile = xTile + 1;
                     break;
-                case 3:
-                    xTile = xTile - 1;
-                    break;
+                // case 3:
+                //     xTile = xTile - 1;
+                //     break;
             }
             GameObject instance1 = Instantiate(SelectRandomObjects(wallTiless), new Vector3(xTile * fm, 0, zTile * fm), Quaternion.identity) as GameObject;
         }
