@@ -245,7 +245,7 @@ MeshCollider:
   m_GameObject: {fileID: 875557145}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 3
   m_Convex: 0
   m_CookingOptions: 14
@@ -450,7 +450,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 018b616d4ccbe2a4286801c398c55e1b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  highlightMaterial: {fileID: 2100000, guid: 3e9f0db9ec9f43b48be4e019a749f8be, type: 2}
+  highlightMaterial: {fileID: 2100000, guid: a9d7a4fa069eb8b459b6ae8b00a948ba, type: 2}
   originalMaterial: {fileID: 2100000, guid: 67a802267ccf45549b59f2309d0ad7f6, type: 2}
   character: {fileID: 1900503255}
   placeHolderTile: {fileID: 875557145}
