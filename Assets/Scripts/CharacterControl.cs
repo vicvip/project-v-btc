@@ -48,6 +48,11 @@ public class CharacterControl : MonoBehaviour
     
     private List<Collider> m_collisions = new List<Collider>();
 
+    private bool m_isFreeze = false;
+
+    private bool resetDirection = false;
+    private Vector3 tempPos;
+
     void Awake()
     {
         if(!m_animator) { gameObject.GetComponent<Animator>(); }
@@ -109,24 +114,26 @@ public class CharacterControl : MonoBehaviour
 
 	void FixedUpdate ()
     {
-        m_animator.SetBool("Grounded", m_isGrounded);
+        if(!m_isFreeze) {
+            m_animator.SetBool("Grounded", m_isGrounded);
 
-        switch(m_controlMode)
-        {
-            case ControlMode.Direct:
-                DirectUpdate();
-                break;
+            switch(m_controlMode)
+            {
+                case ControlMode.Direct:
+                    DirectUpdate();
+                    break;
 
-            case ControlMode.Tank:
-                TankUpdate();
-                break;
+                case ControlMode.Tank:
+                    TankUpdate();
+                    break;
 
-            default:
-                Debug.LogError("Unsupported state");
-                break;
+                default:
+                    Debug.LogError("Unsupported state");
+                    break;
+            }
+
+            m_wasGrounded = m_isGrounded;
         }
-
-        m_wasGrounded = m_isGrounded;
     }
 
     private void TankUpdate()
@@ -153,13 +160,17 @@ public class CharacterControl : MonoBehaviour
         m_animator.SetFloat("MoveSpeed", m_currentV);
 
         JumpingAndLanding();
+        Mining();
     }
 
     private void DirectUpdate()
     {
-        float v = Input.GetAxis("Vertical");
-        float h = Input.GetAxis("Horizontal");
-
+        Mining();
+        // float v = Input.GetAxis("Vertical");
+        // float h = Input.GetAxis("Horizontal");
+        float v = Input.GetAxisRaw("Vertical");
+        float h = Input.GetAxisRaw("Horizontal");
+ 
         Transform camera = Camera.main.transform;
 
         if (Input.GetKey(KeyCode.LeftShift))
@@ -171,23 +182,44 @@ public class CharacterControl : MonoBehaviour
         m_currentV = Mathf.Lerp(m_currentV, v, Time.deltaTime * m_interpolation);
         m_currentH = Mathf.Lerp(m_currentH, h, Time.deltaTime * m_interpolation);
 
-        Vector3 direction = camera.forward * m_currentV + camera.right * m_currentH;
+        var direction = camera.forward * m_currentV + camera.right * m_currentH;
+        
 
         float directionLength = direction.magnitude;
         direction.y = 0;
         direction = direction.normalized * directionLength;
+        
 
         if(direction != Vector3.zero)
         {
-            m_currentDirection = Vector3.Slerp(m_currentDirection, direction, Time.deltaTime * m_interpolation);
-
+            m_currentDirection =  Vector3.Slerp(m_currentDirection, direction, Time.deltaTime * m_interpolation);
+            
             transform.rotation = Quaternion.LookRotation(m_currentDirection);
+            //transform.position += m_currentDirection * m_moveSpeed * Time.deltaTime;
+            
+            if(resetDirection)
+            {
+                // m_currentDirection = Vector3.zero;
+                // transform.position = tempPos;
+                // //transform.position = tempPos;
+                
+                // Debug.Log(transform.position);
+                // resetDirection = false;
+            }
+            else
+            {
+                // tempPos = transform.position;
+                // transform.position += m_currentDirection * m_moveSpeed * Time.deltaTime;
+                // //tempPos = transform.position;
+                // m_animator.SetFloat("MoveSpeed", direction.magnitude);
+            }
             transform.position += m_currentDirection * m_moveSpeed * Time.deltaTime;
-
+                //tempPos = transform.position;
             m_animator.SetFloat("MoveSpeed", direction.magnitude);
         }
-
+        
         JumpingAndLanding();
+        // Mining();
     }
 
     private void JumpingAndLanding()
@@ -209,5 +241,26 @@ public class CharacterControl : MonoBehaviour
         {
             m_animator.SetTrigger("Jump");
         }
+    }
+
+    private void Mining()
+    {
+        if (Input.GetKey(KeyCode.F))
+        {
+            m_animator.SetTrigger("Mining");
+        }
+    }
+
+    private void FreezeInput()
+    {
+        // m_currentV = Mathf.Lerp(m_currentV, 0f, Time.deltaTime * m_interpolation);
+        // m_currentH = Mathf.Lerp(m_currentH, 0f, Time.deltaTime * m_interpolation);
+        m_isFreeze = true;
+        resetDirection = true;
+    }
+
+    private void UnFreezeInput()
+    {
+        m_isFreeze = false;
     }
 }

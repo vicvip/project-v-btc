@@ -43,7 +43,7 @@ public class HighlightMaterial : MonoBehaviour
         {
             var tileRenderer = selectedTile.transform.GetComponent<Renderer>();
             tileRenderer.material = highlightMaterial;
-            Debug.Log(selectedTile.transform.position);
+            //Debug.Log(selectedTile.transform.position);
         }
 
         tempTile = selectedTile;
