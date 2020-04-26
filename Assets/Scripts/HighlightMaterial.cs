@@ -10,6 +10,7 @@ public class HighlightMaterial : MonoBehaviour
     public Material originalMaterial;
     public GameObject character;
     public GameObject placeHolderTile;
+    public GameObject TileHitFXObj;
     public Vector3 offset;
     private GameObject[] generatedTiles = null;
     private GameObject tempTile = null;
@@ -25,7 +26,7 @@ public class HighlightMaterial : MonoBehaviour
     {
         if(generatedTiles == null)
         {
-             generatedTiles = GameObject.FindGameObjectsWithTag("RandomTiles");
+            generatedTiles = GameObject.FindGameObjectsWithTag("RandomTiles");
         }
 
         if(tempTile != null) 
@@ -41,12 +42,19 @@ public class HighlightMaterial : MonoBehaviour
         var selectedTile = generatedTiles.Where(t => t.transform.position == estPos).FirstOrDefault();
         if(selectedTile != null)
         {
+            TileHitFXObj.transform.position = selectedTile.transform.position + new Vector3(0, 0.25f, 0);
             var tileRenderer = selectedTile.transform.GetComponent<Renderer>();
             tileRenderer.material = highlightMaterial;
-            //Debug.Log(selectedTile.transform.position);
         }
 
         tempTile = selectedTile;
+    }
+
+    public void TriggerTileHitFX()
+    {
+        TileHitFXObj.SetActive(true);
+        var TileHitFX = TileHitFXObj.GetComponent<ParticleSystem>();
+        TileHitFX.Play();
     }
 
     private Vector3 estimatePosition(Vector3 actualPosition) 

@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.Experimental.VFX;
 
 public class CharacterControl : MonoBehaviour
 {
@@ -22,6 +23,8 @@ public class CharacterControl : MonoBehaviour
     }
 
     public GameObject pickaxe;
+    public GameObject testFX;
+    public GameObject mainCamera;
 
     [SerializeField] private float m_moveSpeed = 2;
     [SerializeField] private float m_turnSpeed = 200;
@@ -255,5 +258,10 @@ public class CharacterControl : MonoBehaviour
     {
         m_isFreeze = false;
         pickaxe.SetActive(false);
+    }
+
+    private void TileHitFX()
+    {
+        mainCamera.GetComponent<HighlightMaterial>().TriggerTileHitFX();
     }
 }
