@@ -21,6 +21,8 @@ public class CharacterControl : MonoBehaviour
         Direct
     }
 
+    public GameObject pickaxe;
+
     [SerializeField] private float m_moveSpeed = 2;
     [SerializeField] private float m_turnSpeed = 200;
     [SerializeField] private float m_jumpForce = 4;
@@ -51,7 +53,8 @@ public class CharacterControl : MonoBehaviour
     private bool m_isFreeze = false;
 
     private bool resetDirection = false;
-    private Vector3 tempPos;
+
+    private int testCounter = 0;
 
     void Awake()
     {
@@ -165,9 +168,6 @@ public class CharacterControl : MonoBehaviour
 
     private void DirectUpdate()
     {
-        Mining();
-        // float v = Input.GetAxis("Vertical");
-        // float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxisRaw("Vertical");
         float h = Input.GetAxisRaw("Horizontal");
  
@@ -195,31 +195,24 @@ public class CharacterControl : MonoBehaviour
             m_currentDirection =  Vector3.Slerp(m_currentDirection, direction, Time.deltaTime * m_interpolation);
             
             transform.rotation = Quaternion.LookRotation(m_currentDirection);
-            //transform.position += m_currentDirection * m_moveSpeed * Time.deltaTime;
             
+            //Skipping 10 frames hack
             if(resetDirection)
             {
-                // m_currentDirection = Vector3.zero;
-                // transform.position = tempPos;
-                // //transform.position = tempPos;
-                
-                // Debug.Log(transform.position);
-                // resetDirection = false;
-            }
-            else
-            {
-                // tempPos = transform.position;
-                // transform.position += m_currentDirection * m_moveSpeed * Time.deltaTime;
-                // //tempPos = transform.position;
-                // m_animator.SetFloat("MoveSpeed", direction.magnitude);
+                m_currentDirection = Vector3.zero;
+                testCounter++;
+                if(testCounter >= 10)
+                {
+                    testCounter = 0;
+                    resetDirection = false;
+                }
             }
             transform.position += m_currentDirection * m_moveSpeed * Time.deltaTime;
-                //tempPos = transform.position;
             m_animator.SetFloat("MoveSpeed", direction.magnitude);
         }
         
         JumpingAndLanding();
-        // Mining();
+        Mining();
     }
 
     private void JumpingAndLanding()
@@ -247,14 +240,13 @@ public class CharacterControl : MonoBehaviour
     {
         if (Input.GetKey(KeyCode.F))
         {
+            pickaxe.SetActive(true);
             m_animator.SetTrigger("Mining");
         }
     }
 
     private void FreezeInput()
     {
-        // m_currentV = Mathf.Lerp(m_currentV, 0f, Time.deltaTime * m_interpolation);
-        // m_currentH = Mathf.Lerp(m_currentH, 0f, Time.deltaTime * m_interpolation);
         m_isFreeze = true;
         resetDirection = true;
     }
@@ -262,5 +254,6 @@ public class CharacterControl : MonoBehaviour
     private void UnFreezeInput()
     {
         m_isFreeze = false;
+        pickaxe.SetActive(false);
     }
 }
