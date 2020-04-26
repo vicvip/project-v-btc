@@ -197,7 +197,10 @@ public class CharacterControl : MonoBehaviour
         {
             m_currentDirection =  Vector3.Slerp(m_currentDirection, direction, Time.deltaTime * m_interpolation);
             
-            transform.rotation = Quaternion.LookRotation(m_currentDirection);
+            if(m_currentDirection != Vector3.zero)
+            {
+                transform.rotation = Quaternion.LookRotation(m_currentDirection);
+            }
             
             //Skipping 10 frames hack
             if(resetDirection)

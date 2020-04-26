@@ -17,7 +17,7 @@ public class TilesGenerator : MonoBehaviour
     public float fm = 1.1f;
     int counter = 0;
     
-    private List<ObjectPosition> objectPositionList = new List<ObjectPosition>();
+    public List<ObjectPosition> objectPositionList = new List<ObjectPosition>();
 
     private List<ObjectPosition> corridorPositionlist = new List<ObjectPosition>();
 

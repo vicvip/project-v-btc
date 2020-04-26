@@ -12,6 +12,7 @@ public class ObjectPosition {
     public int? EdgeStance { get; set; } //North 0, East 1, South 2, West 3
     public Vector3 ItsVector { get; set;}
     public bool HasBeenSelected { get; set; }
+    public bool IsTilled { get; set; }
 
     //public _EdgeStance EdgeStance { get; set; }
 

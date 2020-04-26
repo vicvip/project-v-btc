@@ -8,21 +8,27 @@ public class HighlightMaterial : MonoBehaviour
 {
     public Material highlightMaterial;
     public Material originalMaterial;
+    public Material tilledMaterial;
     public GameObject character;
+    public GameObject mainCamera;
     public GameObject placeHolderTile;
-    public GameObject TileHitFXObj;
+    public GameObject tileHitFXObj;
+    public GameObject poofFXObj;
     public Vector3 offset;
     private GameObject[] generatedTiles = null;
     private GameObject tempTile = null;
+    private GameObject selectedTile;
+    public List<ObjectPosition> objectPositionList;
 
     // Start is called before the first frame update
     void Start()
     {
         offset = placeHolderTile.transform.position - character.transform.position;
+        objectPositionList = mainCamera.GetComponent<TilesGenerator>().objectPositionList;
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         if(generatedTiles == null)
         {
@@ -32,19 +38,28 @@ public class HighlightMaterial : MonoBehaviour
         if(tempTile != null) 
         {
             var tempRenderer = tempTile.transform.GetComponent<Renderer>();
-            tempRenderer.material = originalMaterial;
+            var tempTileObject = objectPositionList.Where(o => o.X == tempTile.transform.position.x && o.Z == tempTile.transform.position.z).First();
+            if(!tempTileObject.IsTilled)
+            {
+                tempRenderer.material = originalMaterial;
+            }
         }
         
         var newPos = character.transform.position - offset + character.transform.forward;
         placeHolderTile.transform.position = new Vector3(newPos.x, 0, newPos.z);
         var estPos = estimatePosition(placeHolderTile.transform.position);
         
-        var selectedTile = generatedTiles.Where(t => t.transform.position == estPos).FirstOrDefault();
+        selectedTile = generatedTiles.Where(t => t.transform.position == estPos).FirstOrDefault();
         if(selectedTile != null)
         {
-            TileHitFXObj.transform.position = selectedTile.transform.position + new Vector3(0, 0.25f, 0);
+            tileHitFXObj.transform.position = selectedTile.transform.position + new Vector3(0, 0.25f, 0);
+            poofFXObj.transform.position = selectedTile.transform.position + new Vector3(0, -0.25f, 0);
             var tileRenderer = selectedTile.transform.GetComponent<Renderer>();
-            tileRenderer.material = highlightMaterial;
+            var tileObject = objectPositionList.Where(o => o.X == selectedTile.transform.position.x && o.Z == selectedTile.transform.position.z).First();
+            if(!tileObject.IsTilled)
+            {
+                tileRenderer.material = highlightMaterial;
+            }
         }
 
         tempTile = selectedTile;
@@ -52,9 +67,16 @@ public class HighlightMaterial : MonoBehaviour
 
     public void TriggerTileHitFX()
     {
-        TileHitFXObj.SetActive(true);
-        var TileHitFX = TileHitFXObj.GetComponent<ParticleSystem>();
+        var tileObject = objectPositionList.Where(o => o.X == selectedTile.transform.position.x && o.Z == selectedTile.transform.position.z).First();
+        var tileRenderer = selectedTile.transform.GetComponent<Renderer>();
+        var TileHitFX = tileHitFXObj.GetComponent<ParticleSystem>();
+        var poofFX = poofFXObj.GetComponent<ParticleSystem>();
+        tileRenderer.material = tilledMaterial;
+        tileObject.IsTilled = true;
+        tileHitFXObj.SetActive(true);
+        poofFXObj.SetActive(true);
         TileHitFX.Play();
+        poofFX.Play();
     }
 
     private Vector3 estimatePosition(Vector3 actualPosition) 
